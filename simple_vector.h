@@ -14,16 +14,14 @@ using namespace std;
 class ReserveProxyObj {
 public:
     ReserveProxyObj(size_t capacity_to_reserve = 0) : capacity_(capacity_to_reserve) {
-        //   std::cout << "default ReserveProxyObj constructor" << std::endl;
     }
-    size_t Getcap() {
+    size_t GetРЎapacity() {
         return capacity_;
     }
     size_t capacity_;
 };
 
 ReserveProxyObj Reserve(size_t capacity_to_reserve) {
-    //    std::cout << "Reserve(size_t capacity_to_reserve)" << std::endl;
     return ReserveProxyObj(capacity_to_reserve);
 }
 
@@ -36,10 +34,8 @@ public:
 
     SimpleVector() noexcept = default;
     
-     // конструктор копирования
+     // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ
     SimpleVector(SimpleVector&& other) noexcept {
-        //   std::cout << "SimpleVector(SimpleVector && other) noexcept" << std::endl;
-        assert(IsEmpty());
         size_ = other.GetSize();
         capacity_ = other.GetCapacity();
         SimpleVector tmp(other.size_);
@@ -53,10 +49,8 @@ public:
         other.Clear();
     }
 
-    // конструктор копирования const
+    // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ const
     SimpleVector(const SimpleVector& other) noexcept {
-        //   std::cout << "SimpleVector(const SimpleVector&& other)" << std::endl;
-        assert(IsEmpty());
         size_ = other.GetSize();
         capacity_ = other.GetCapacity();
         SimpleVector tmp(other.size_);
@@ -71,7 +65,6 @@ public:
     }
 
     SimpleVector& operator=(SimpleVector&& rhs) noexcept {
-        //   std::cout << "SimpleVector& operator=(SimpleVector&& rhs)" << std::endl;
         if (rhs.IsEmpty()) {
             Clear();
         }
@@ -83,7 +76,6 @@ public:
     }
 
     SimpleVector& operator=(const SimpleVector& rhs) noexcept {
-        //   std::cout << "SimpleVector& operator=(SimpleVector&& rhs)" << std::endl;
         if (rhs.IsEmpty()) {
             Clear();
         }
@@ -95,7 +87,6 @@ public:
     }
 
     void Reserve(size_t new_capacity) {
-        //   std::cout << "void Reserve(size_t new_capacity)" << std::endl;
         if (new_capacity > capacity_) {
             auto size = size_;
             Resize(new_capacity);
@@ -104,44 +95,26 @@ public:
         }
     }
 
-    // Создаёт вектор из size элементов, инициализированных значением по умолчанию
-    explicit SimpleVector(size_t size) : data_(size), size_(size), capacity_(size) {
-        // std::cout << " explicit SimpleVector(size_t size) : SimpleVector(size, Type{})" << std::endl;
-        int s = 0;
-        for (auto i = begin(); i < end(); i++) {
-            s++;
-            data_[s - 1] = 0;
-        }
-    }
-
-  // Создаёт вектор из std::initializer_list
+  // РЎРѕР·РґР°С‘С‚ РІРµРєС‚РѕСЂ РёР· std::initializer_list
     SimpleVector(std::initializer_list<Type> init) : data_(init.size()), size_(init.size()), capacity_(init.size()) {
         std::copy(init.begin(), init.end(), begin());
     }
 
-    // Создаёт вектор из size элементов, инициализированных значением value
-    SimpleVector(size_t size, Type&& value) : data_(size), size_(size), capacity_(size) {
-        //   std::cout << " SimpleVector(size_t size, Type&& value) : data_(size), size_(size), capacity_(size" << std::endl;
-
+    // РЎРѕР·РґР°С‘С‚ РІРµРєС‚РѕСЂ РёР· size СЌР»РµРјРµРЅС‚РѕРІ, РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹С… Р·РЅР°С‡РµРЅРёРµРј value
+    SimpleVector(size_t size, Type&& value=0) : data_(size), size_(size), capacity_(size) {
         int s = 0;
         for (auto i = std::make_move_iterator(begin()); i < std::make_move_iterator(end()); i++) {
+            data_[s] = std::move(value);
             s++;
-            data_[s - 1] = std::move(value);
         }
     }
 
-    // Создаёт вектор из size элементов, инициализированных значением value
+    // РЎРѕР·РґР°С‘С‚ РІРµРєС‚РѕСЂ РёР· size СЌР»РµРјРµРЅС‚РѕРІ, РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹С… Р·РЅР°С‡РµРЅРёРµРј value
     SimpleVector(size_t size, const Type value) : data_(size), size_(size), capacity_(size) {
-        // std::cout << "SimpleVector(size_t size, const Type && value) : data_(size), size_(size), capacity_(size)" << std::endl;
-        int s = 0;
-        for (auto i = begin(); i < end(); i++) {
-            s++;
-            data_[s - 1] = value;
-        }
+        std::fill(begin(), end(), value);
     }
 
     explicit SimpleVector(ReserveProxyObj capacity) {
-        // std::cout << "explicit SimpleVector(ReserveProxyObj capacity" << std::endl;
         Reserve(capacity.capacity_);
     }
 
@@ -171,12 +144,13 @@ public:
         data_[size_++] = std::move(item);
     }
 
-    // Вставляет значение value в позицию pos.
-        // Возвращает итератор на вставленное значение
-        // Если перед вставкой значения вектор был заполнен полностью,
-        // вместимость вектора должна увеличиться вдвое, а для вектора вместимостью 0 стать равной 1
+    // Р’СЃС‚Р°РІР»СЏРµС‚ Р·РЅР°С‡РµРЅРёРµ value РІ РїРѕР·РёС†РёСЋ pos.
+        // Р’РѕР·РІСЂР°С‰Р°РµС‚ РёС‚РµСЂР°С‚РѕСЂ РЅР° РІСЃС‚Р°РІР»РµРЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ
+        // Р•СЃР»Рё РїРµСЂРµРґ РІСЃС‚Р°РІРєРѕР№ Р·РЅР°С‡РµРЅРёСЏ РІРµРєС‚РѕСЂ Р±С‹Р» Р·Р°РїРѕР»РЅРµРЅ РїРѕР»РЅРѕСЃС‚СЊСЋ,
+        // РІРјРµСЃС‚РёРјРѕСЃС‚СЊ РІРµРєС‚РѕСЂР° РґРѕР»Р¶РЅР° СѓРІРµР»РёС‡РёС‚СЊСЃСЏ РІРґРІРѕРµ, Р° РґР»СЏ РІРµРєС‚РѕСЂР° РІРјРµСЃС‚РёРјРѕСЃС‚СЊСЋ 0 СЃС‚Р°С‚СЊ СЂР°РІРЅРѕР№ 1
 
     Iterator Insert(ConstIterator pos, const Type& value) {
+        assert((pos >= cbegin()) && (pos <= cend()));
         if (size_ == capacity_) {
             auto size = size_ + 1;
             SimpleVector tmp(size);
@@ -200,6 +174,7 @@ public:
     }
 
     Iterator Insert(ConstIterator pos, Type&& value) {
+        assert((pos >= cbegin()) && (pos <= cend()));
         if (size_ == capacity_) {
             auto size = size_ + 1;
             SimpleVector tmp(size);
@@ -222,22 +197,22 @@ public:
         }
     }
 
-    // "Удаляет" последний элемент вектора. Вектор не должен быть пустым
+    // "РЈРґР°Р»СЏРµС‚" РїРѕСЃР»РµРґРЅРёР№ СЌР»РµРјРµРЅС‚ РІРµРєС‚РѕСЂР°. Р’РµРєС‚РѕСЂ РЅРµ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј
     void PopBack() noexcept {
         assert(!IsEmpty());
         size_--;
     }
   
-    // Удаляет элемент вектора в указанной позиции
+    // РЈРґР°Р»СЏРµС‚ СЌР»РµРјРµРЅС‚ РІРµРєС‚РѕСЂР° РІ СѓРєР°Р·Р°РЅРЅРѕР№ РїРѕР·РёС†РёРё
     Iterator Erase(ConstIterator pos) {
-        // assert(!IsEmpty());
+        assert((pos >= cbegin()) && (pos <cend()));
         auto size_t_pos = pos - begin();
         std::move(begin() + size_t_pos + 1, end(), begin() + size_t_pos);
         size_--;
         return std::move(begin() + size_t_pos);
     }
 
-    // Обменивает значение с другим вектором
+    // РћР±РјРµРЅРёРІР°РµС‚ Р·РЅР°С‡РµРЅРёРµ СЃ РґСЂСѓРіРёРј РІРµРєС‚РѕСЂРѕРј
     void swap(SimpleVector& other) noexcept {
         SimpleVector tmp(std::move(other.GetSize()));
 
@@ -249,52 +224,56 @@ public:
         std::swap(capacity_, other.capacity_);
     }
 
-    // Возвращает количество элементов в массиве
+    // Р’РѕР·РІСЂР°С‰Р°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РІ РјР°СЃСЃРёРІРµ
     size_t GetSize() const noexcept {
         return size_;
     }
 
-    // Возвращает вместимость массива
+    // Р’РѕР·РІСЂР°С‰Р°РµС‚ РІРјРµСЃС‚РёРјРѕСЃС‚СЊ РјР°СЃСЃРёРІР°
     size_t GetCapacity() const noexcept {
         return capacity_;
     }
 
-    // Сообщает, пустой ли массив
+    // РЎРѕРѕР±С‰Р°РµС‚, РїСѓСЃС‚РѕР№ Р»Рё РјР°СЃСЃРёРІ
     bool IsEmpty() const noexcept {
         return (size_ == 0);
     }
 
-    // Возвращает ссылку на элемент с индексом index
+    // Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃСЃС‹Р»РєСѓ РЅР° СЌР»РµРјРµРЅС‚ СЃ РёРЅРґРµРєСЃРѕРј index
     Type& operator[](size_t index) noexcept {
         return data_[index];
     }
 
-    // Возвращает константную ссылку на элемент с индексом index
+    // Р’РѕР·РІСЂР°С‰Р°РµС‚ РєРѕРЅСЃС‚Р°РЅС‚РЅСѓСЋ СЃСЃС‹Р»РєСѓ РЅР° СЌР»РµРјРµРЅС‚ СЃ РёРЅРґРµРєСЃРѕРј index
     const Type& operator[](size_t index) const noexcept {
         return data_[index];
     }
 
-    // Возвращает ссылку на элемент с индексом index
-    // Выбрасывает исключение std::out_of_range, если index >= size
+    // Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃСЃС‹Р»РєСѓ РЅР° СЌР»РµРјРµРЅС‚ СЃ РёРЅРґРµРєСЃРѕРј index
+    // Р’С‹Р±СЂР°СЃС‹РІР°РµС‚ РёСЃРєР»СЋС‡РµРЅРёРµ std::out_of_range, РµСЃР»Рё index >= size
     Type& At(size_t index) {
-        if ((index > size_) || (index == size_)) throw std::out_of_range("invalid index");
+        if (index >= size_) {
+            throw std::out_of_range("invalid index");
+        }
         return data_[index];
     }
 
-    // Возвращает константную ссылку на элемент с индексом index
-    // Выбрасывает исключение std::out_of_range, если index >= size
+    // Р’РѕР·РІСЂР°С‰Р°РµС‚ РєРѕРЅСЃС‚Р°РЅС‚РЅСѓСЋ СЃСЃС‹Р»РєСѓ РЅР° СЌР»РµРјРµРЅС‚ СЃ РёРЅРґРµРєСЃРѕРј index
+    // Р’С‹Р±СЂР°СЃС‹РІР°РµС‚ РёСЃРєР»СЋС‡РµРЅРёРµ std::out_of_range, РµСЃР»Рё index >= size
     const Type& At(size_t index) const {
-        if ((index > size_) || (index == size_)) throw std::out_of_range("invalid index");
+        if (index >= size_) {
+            throw std::out_of_range("invalid index");
+        }
         return data_[index];
     }
 
-    // Обнуляет размер массива, не изменяя его вместимость
+    // РћР±РЅСѓР»СЏРµС‚ СЂР°Р·РјРµСЂ РјР°СЃСЃРёРІР°, РЅРµ РёР·РјРµРЅСЏСЏ РµРіРѕ РІРјРµСЃС‚РёРјРѕСЃС‚СЊ
     void Clear() noexcept {
         size_ = 0;
     }
 
-    // Изменяет размер массива.
-    // При увеличении размера новые элементы получают значение по умолчанию для типа Type
+    // РР·РјРµРЅСЏРµС‚ СЂР°Р·РјРµСЂ РјР°СЃСЃРёРІР°.
+    // РџСЂРё СѓРІРµР»РёС‡РµРЅРёРё СЂР°Р·РјРµСЂР° РЅРѕРІС‹Рµ СЌР»РµРјРµРЅС‚С‹ РїРѕР»СѓС‡Р°СЋС‚ Р·РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ С‚РёРїР° Type
     void Resize(size_t new_size) {
         if (new_size > capacity_) {
             size_t capacity = std::max(new_size, capacity_ * 2);
@@ -314,38 +293,38 @@ public:
         }
     }
 
-    // Возвращает итератор на начало массива
-    // Для пустого массива может быть равен (или не равен) nullptr
+    // Р’РѕР·РІСЂР°С‰Р°РµС‚ РёС‚РµСЂР°С‚РѕСЂ РЅР° РЅР°С‡Р°Р»Рѕ РјР°СЃСЃРёРІР°
+    // Р”Р»СЏ РїСѓСЃС‚РѕРіРѕ РјР°СЃСЃРёРІР° РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°РІРµРЅ (РёР»Рё РЅРµ СЂР°РІРµРЅ) nullptr
     Iterator begin() noexcept {
         return &data_[0];
     }
 
-    // Возвращает итератор на элемент, следующий за последним
-    // Для пустого массива может быть равен (или не равен) nullptr
+    // Р’РѕР·РІСЂР°С‰Р°РµС‚ РёС‚РµСЂР°С‚РѕСЂ РЅР° СЌР»РµРјРµРЅС‚, СЃР»РµРґСѓСЋС‰РёР№ Р·Р° РїРѕСЃР»РµРґРЅРёРј
+    // Р”Р»СЏ РїСѓСЃС‚РѕРіРѕ РјР°СЃСЃРёРІР° РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°РІРµРЅ (РёР»Рё РЅРµ СЂР°РІРµРЅ) nullptr
     Iterator end() noexcept {
         return begin() + size_;
     }
 
-    // Возвращает константный итератор на начало массива
-    // Для пустого массива может быть равен (или не равен) nullptr
+    // Р’РѕР·РІСЂР°С‰Р°РµС‚ РєРѕРЅСЃС‚Р°РЅС‚РЅС‹Р№ РёС‚РµСЂР°С‚РѕСЂ РЅР° РЅР°С‡Р°Р»Рѕ РјР°СЃСЃРёРІР°
+    // Р”Р»СЏ РїСѓСЃС‚РѕРіРѕ РјР°СЃСЃРёРІР° РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°РІРµРЅ (РёР»Рё РЅРµ СЂР°РІРµРЅ) nullptr
     ConstIterator begin() const noexcept {
         return &data_[0];
     }
 
-    // Возвращает итератор на элемент, следующий за последним
-    // Для пустого массива может быть равен (или не равен) nullptr
+    // Р’РѕР·РІСЂР°С‰Р°РµС‚ РёС‚РµСЂР°С‚РѕСЂ РЅР° СЌР»РµРјРµРЅС‚, СЃР»РµРґСѓСЋС‰РёР№ Р·Р° РїРѕСЃР»РµРґРЅРёРј
+    // Р”Р»СЏ РїСѓСЃС‚РѕРіРѕ РјР°СЃСЃРёРІР° РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°РІРµРЅ (РёР»Рё РЅРµ СЂР°РІРµРЅ) nullptr
     ConstIterator end() const noexcept {
         return begin() + size_;
     }
 
-    // Возвращает константный итератор на начало массива
-    // Для пустого массива может быть равен (или не равен) nullptr
+    // Р’РѕР·РІСЂР°С‰Р°РµС‚ РєРѕРЅСЃС‚Р°РЅС‚РЅС‹Р№ РёС‚РµСЂР°С‚РѕСЂ РЅР° РЅР°С‡Р°Р»Рѕ РјР°СЃСЃРёРІР°
+    // Р”Р»СЏ РїСѓСЃС‚РѕРіРѕ РјР°СЃСЃРёРІР° РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°РІРµРЅ (РёР»Рё РЅРµ СЂР°РІРµРЅ) nullptr
     ConstIterator cbegin() const noexcept {
         return &data_[0];
     }
 
-    // Возвращает итератор на элемент, следующий за последним
-    // Для пустого массива может быть равен (или не равен) nullptr
+    // Р’РѕР·РІСЂР°С‰Р°РµС‚ РёС‚РµСЂР°С‚РѕСЂ РЅР° СЌР»РµРјРµРЅС‚, СЃР»РµРґСѓСЋС‰РёР№ Р·Р° РїРѕСЃР»РµРґРЅРёРј
+    // Р”Р»СЏ РїСѓСЃС‚РѕРіРѕ РјР°СЃСЃРёРІР° РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°РІРµРЅ (РёР»Рё РЅРµ СЂР°РІРµРЅ) nullptr
     ConstIterator cend() const noexcept {
         return cbegin() + size_;
     }
